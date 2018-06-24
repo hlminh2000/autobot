@@ -4,8 +4,6 @@ const express = require("express");
 const app = express();
 const { get } = require("lodash");
 
-const LED = new Gpio(4, "out");
-
 const state = {
   livingRoom: {
     light: {
@@ -16,7 +14,6 @@ const state = {
 };
 
 app.use("/toggle/*", (req, res) => {
-  LED.writeSync(1);
   const { path } = req;
   console.log("toggle: ", req.path);
   const statePath = path
@@ -26,7 +23,8 @@ app.use("/toggle/*", (req, res) => {
   const stateObj = get(state, statePath);
   if (stateObj) {
     const port = new Gpio(stateObj.pin, "out");
-    port.writeSync(!stateObj.on);
+    stateObj.on = !stateObj.on;
+    port.writeSync(stateObj.on);
   }
   res.send(state);
 });

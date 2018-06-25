@@ -1,4 +1,4 @@
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const { Gpio } = require("onoff");
 const express = require("express");
 const app = express();
@@ -23,8 +23,6 @@ app.use("/toggle", (req, res) => {
     .filter(p => p.length)
     .join(".");
   const stateObj = get(state, statePath);
-  console.log(statePath);
-  console.log(stateObj);
   if (stateObj) {
     const port = new Gpio(stateObj.pin, "out");
     stateObj.on = !stateObj.on;

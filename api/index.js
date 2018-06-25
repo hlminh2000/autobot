@@ -15,7 +15,6 @@ const state = {
 
 app.use("/toggle/*", (req, res) => {
   const { path } = req;
-  console.log("toggle: ", req.path);
   const statePath = path
     .split("/")
     .filter(p => p !== "toggle")
@@ -29,7 +28,7 @@ app.use("/toggle/*", (req, res) => {
   res.send(state);
 });
 
-app.use("/state", (req, res) => req.send(state));
+app.use("/state", (req, res) => res.send(state));
 
 app.listen(PORT, () => {
   console.log(`listening on port: ${PORT}`);

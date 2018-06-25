@@ -13,17 +13,19 @@ const state = {
   }
 };
 
-app.use("/toggle/*", (req, res) => {
+app.use("/toggle", (req, res) => {
   const { path } = req;
   const statePath = path
     .split("/")
-    .filter(p => p !== "toggle")
+    .filter(p => p.length)
     .join(".");
   const stateObj = get(state, statePath);
+  console.log(statePath)
+  console.log(stateObj)
   if (stateObj) {
     const port = new Gpio(stateObj.pin, "out");
     stateObj.on = !stateObj.on;
-    port.writeSync(stateObj.on);
+    port.writeSync(Number(stateObj.on));
   }
   res.send(state);
 });

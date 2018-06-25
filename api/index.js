@@ -3,6 +3,7 @@ const { Gpio } = require("onoff");
 const express = require("express");
 const app = express();
 const { get } = require("lodash");
+var cors = require("cors");
 
 const state = {
   livingRoom: {
@@ -13,6 +14,8 @@ const state = {
   }
 };
 
+app.use(cors());
+
 app.use("/toggle", (req, res) => {
   const { path } = req;
   const statePath = path
@@ -20,8 +23,8 @@ app.use("/toggle", (req, res) => {
     .filter(p => p.length)
     .join(".");
   const stateObj = get(state, statePath);
-  console.log(statePath)
-  console.log(stateObj)
+  console.log(statePath);
+  console.log(stateObj);
   if (stateObj) {
     const port = new Gpio(stateObj.pin, "out");
     stateObj.on = !stateObj.on;

@@ -1,9 +1,11 @@
 const PORT = process.env.PORT || 4000;
 const { Gpio } = require("onoff");
+const moment = require("moment");
+const fetch = require("node-fetch");
 const express = require("express");
-const app = express();
 const { get } = require("lodash");
-var cors = require("cors");
+const schedule = require("node-schedule");
+const cors = require("cors");
 
 const state = {
   livingRoom: {
@@ -14,8 +16,34 @@ const state = {
   }
 };
 
-app.use(cors());
+// tasks
+const getSunTimes = ({ lng = -4.42034, lat = 36.72016, date = "today" } = {}) =>
+  fetch(
+    `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lng}&date=${date}`
+  ).then(res => res.json());
 
+const scheduleSunset = () =>
+  getSunTimes({
+    lat: 43.659718,
+    lng: -79.36274,
+    date: "today"
+  }).then(({ results: { sunset } }) => {
+    const localTime = moment(sunset, "LTS")
+      .utc()
+      .valueOf();
+    console.log(`scheduling Sunset at: ${localTime}`);
+    schedule.scheduleJob(new Date(localTime), () => {
+      if (!state.livingRoom.light.on) {
+        fetch(`http://localhost:${PORT}/toggle/livingRoom/light`);
+      }
+    });
+  });
+
+schedule.scheduleJob("* * 6 * * *", scheduleSunset);
+scheduleSunset();
+
+const app = express();
+app.use(cors());
 app.use("/toggle", (req, res) => {
   const { path } = req;
   const statePath = path
